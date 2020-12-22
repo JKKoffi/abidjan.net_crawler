@@ -63,6 +63,8 @@ Define here utility functions
 # 2019.0	12575	84660
 # 2020.0	72972	94135
 
+dates = {1997.0: '303',1998.0: '282',2001.0: '522',2002.0: '1730',2003.0: '2077',2004.0: '10283',2005.0: '10',2006.0: '12159',2007.0: '4704',2008.0: '10001',2009.0: '10470',2010.0: '15790',2011.0: '19001',2012.0: '23382',2013.0: '29133',2014.0: '35553',2015.0: '44032',2016.0: '50677',2017.0: '59187',2018.0: '66311',2019.0: '12575',2020.0: '72972'}
+
 
 #mesure elapsed time
 from contextlib import contextmanager
@@ -76,11 +78,75 @@ def elapsed_timer():
     elapser = lambda: end-start
 
 """ Searching lins"""
+
+
+path_to_history = os.path.join(dir_result, 'history.csv')
+def save_history(df):
+      
+      if not os.path.exists(path_to_history):
+            df.to_csv(path_to_history, header=True, encoding='utf-16le', index =False,mode='a')
+
+#by id
+def search_links_id(start_id):
+
+  pages = []
+  j=start_id
+  stop = False
+  i = 0
+  while stop ==False:
+
+      url = f'https://business.abidjan.net/AL/a/{j}.asp'
+      response = requests.get(url)
+      if response.ok:
+        pages.append(url)
+        i = 0
+        print(f'complete {j}')
+      else:
+        i +=1
+        if i>50: #stop if more than 50 pages are failled
+          stop=True
+      j +=1
+  df = pd.DataFrame({'pages':pages})
+  return df
+
+
+#By date
+def search_links_date(start_date=None):
+
+  pages = []
+  if start_date!=None:
+        j= int(dates[int(datetime.strptime(start_date, "%d %m %Y").year)])
+  else:
+        j =  int(dates[int(datetime.now().year)])
+  stop = False
+  i = 0
+  while stop ==False:
+
+
+    url = f'https://business.abidjan.net/AL/a/{j}.asp'
+    response = requests.get(url)
+    if response.ok:
+      pages.append(url)
+      print(f'found: {url}')
+      i = 0
+    else:
+      i +=1
+      if i>50: #stop if more than 50 pages are failled
+        stop=True
+    j +=1
+    
+  df = pd.DataFrame({'pages':pages})
+  return df
+
+
+
+#by file
 def search_links(df_merged):
+    
+  links = df_merged['link'].dropna().apply(lambda x:float(str(x).split('/')[-1].split('.')[0])).tolist()
 
-  links = df_merged['link'].apply(lambda x:int(x.split('/')[-1].split('.')[0])).tolist()
+  start = int(df_merged['link'].dropna().apply(lambda x:float(str(x).split('/')[-1].split('.')[0])).min())
 
-  start = df_merged['link'].apply(lambda x:int(x.split('/')[-1].split('.')[0])).min()
   pages = []
   j=start
   stop = False
@@ -93,12 +159,13 @@ def search_links(df_merged):
       if response.ok:
         pages.append(url)
         i = 0
+        print(f'\rCompleted: {url}')
       else:
         i +=1
         if i>50: #stop if more than 50 pages are failled
           stop=True
       j +=1
-      df = pd.DataFrame({'pages':pages})
+  df = pd.DataFrame({'pages':pages})
   return df
 
 
@@ -117,6 +184,7 @@ import re
 from bs4 import BeautifulSoup, SoupStrainer
 import requests
 
+
 def crawl_data(df_links):
 
   session = requests.Session()
@@ -125,59 +193,58 @@ def crawl_data(df_links):
   mesure_complexity = {} # jsut to measure the execution time
   pages_fail = []
 
-  # df_links = pd.read_csv("/content/links.csv", encoding='utf-16le', sep=';')
-  # N=df_links.shape[0]
-  # df_links = pd.read_csv("/content/links_updated.csv", encoding='utf-16le', sep=';')
   N=df_links.shape[0]
   i = 0
-  with elapsed_timer() as elapsed:  
-        # with elapsed_timer() as elapsed:    
-        # if i>4:
-        #     time.sleep(20)
-        for link in df_links.iloc[:,0].tolist():
-          data1 = []
-          download_url = link
-          data1.append(download_url)
-          try:
-            response = session.get(download_url)
-            try:
-              soup = BeautifulSoup(response.text, 'html.parser')
-              elem = soup.find("div", {"id": "module"})
-              # data1 = [
-              #           download_url,
-              #           elem.next_sibling.next_sibling.next_sibling.next_sibling.text,
-              #           elem.next_sibling.next_sibling.next_sibling.next_sibling.next_sibling.next_sibling.next_sibling.next_sibling.text
-              #         ]
-              elem = soup.findAll("div", {"id": "module"})
-              data1 = [
-                        download_url,
-                        elem[0].text,elem[1].text,elem[2].text
-                      ]
 
-              print(len(data1[2]))
-              data.append(data1)
-              print(f'{download_url} done!')
-            except:
-              try:
-                soup = BeautifulSoup(response.text, 'html.parser')
-                # elem = soup.find("div", {"id": "shadow"})
-                elem = soup.find("div", {"id": "page_content"})
-                data1 = [download_url,elem.text]
-                print(len(data1[1]))
-                data.append(data1)
-              except:
-                print(f'failed on {download_url}')
-                pages_fail.append(download_url)
-          except:
-              pages_fail.append(download_url)
-          # time.sleep(5)
-          i +=1
-          prog = ((i+1)/N) * 100
-          print('\rCompleted: {:.2f}%'.format(prog),end=' ')
-        print(elapsed())
+
+  # with elapsed_timer() as elapsed:    
+  # if i>4:
+  #     time.sleep(20)
+  for link in df_links.iloc[:,0].tolist():
+    data1 = []
+    download_url = link
+    data1.append(download_url)
+    try:
+      response = session.get(download_url)
+      try:
+        soup = BeautifulSoup(response.text, 'html.parser')
+        # elem = soup.find("div", {"id": "module"})
+        # data1 = [
+        #           download_url,
+        #           elem.next_sibling.next_sibling.next_sibling.next_sibling.text,
+        #           elem.next_sibling.next_sibling.next_sibling.next_sibling.next_sibling.next_sibling.next_sibling.next_sibling.text
+        #         ]
+        elem = soup.findAll("div", {"id": "module"})
+        data1 = [
+                  download_url,
+                  elem[0].text,elem[1].text,elem[2].text
+                ]
+        print(len(data1[2]))    
+        data.append(data1)
+        print(f'{download_url} done!')
+      except:
+        try:
+          soup = BeautifulSoup(response.text, 'html.parser')
+          # elem = soup.find("div", {"id": "shadow"})
+          elem = soup.find("div", {"id": "page_content"})
+          data1 = [download_url,elem.text]
+          print(len(data1[1]))
+          data.append(data1)
+        except:
+          print(f'failed on {download_url}')
+          pages_fail.append(download_url)
+    except:
+        pages_fail.append(download_url)
+    # time.sleep(5)
+    i +=1
+    prog = ((i+1)/N) * 100
+    print('\rCompleted: {:.2f}%'.format(prog),end=' ')
+
+
 
   df_2 = pd.DataFrame({'link':[x[0] for x in data if len(x)==2], "content":[x[1] for x in data if len(x)==2]})
-  df_3 = pd.DataFrame({'link':[x[0] for x in data if len(x)==4], "header":[x[2] for x in data if len(x)==4],"content":[x[3] for x in data if len(x)==4]})   
+  df_3 = pd.DataFrame({'link':[x[0] for x in data if len(x)==4], "header":[x[2] for x in data if len(x)==4],"content":[x[3] for x in data if len(x)==4]})  
+  df_fail = pd.DataFrame({'pages':pages_fail}) 
   df_fail.to_csv(os.path.join(dir_result,'pages_failed.csv'), header=True, encoding='utf-16le', index =False , sep=';',mode="a")
 
   df_3['page-content'] = df_3['header']+''+df_3['content']
@@ -189,7 +256,6 @@ def crawl_data(df_links):
   df_merged = df_merged.drop(['index'], axis = 1)
 
   return df_merged
-
 
 
 
@@ -563,7 +629,7 @@ if __name__ == "__main__":
       print('python crawler.py path_to_annonces new_path')
       exit(0)
 
-  df_merged = pd.read_csv(arg[1], encoding='utf-16le' , sep=';')
+  df_merged = pd.read_csv(arg[1], encoding='utf-16le' )
 
 
   df_links = search_links(df_merged)

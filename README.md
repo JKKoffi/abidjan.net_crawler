@@ -24,7 +24,7 @@ koffikouakoujonathan58@gmail.com
 
 ## Notebooks
 
-In the folder `notebooks`, you(ll find all the notebooks, i used to crawl these data.
+In the folder `notebooks`, you'll find all the notebooks, i used to crawl these data.
 
 * `Crawl_by_ID.ipynb` : use this to grab data when you now the id in the url (`https://business.abidjan.net/AL/a/id.asp`
 

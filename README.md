@@ -60,4 +60,4 @@ python app.py
 You'll have 3 choices, to grab by `id` or `date` or `file`.
 
 
-It's possible also to run automatically your scripts under your `OS`, or a cloud. 
+It's possible also to run automatically your scripts under your `OS`, or a cloud. For more details visit this page (lin)[https://towardsdatascience.com/how-to-automate-live-data-to-your-website-with-python-f22b76699674]

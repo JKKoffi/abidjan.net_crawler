@@ -33,7 +33,7 @@ In the folder `notebooks`, you'll find all the notebooks, i used to crawl these 
 * ` Crawl_by_date.ipynb`: to grab by a date followin this format `day month year`. If you leave this None, it will take the id from the min of the current year.
 
 
-## GUI
+## GUI (loading)
 
 ### setup environment
 
@@ -61,3 +61,10 @@ You'll have 3 choices, to grab by `id` or `date` or `file`.
 
 
 It's possible also to run automatically your scripts under your `OS`, or a cloud. For more details visit this page [link](https://towardsdatascience.com/how-to-automate-live-data-to-your-website-with-python-f22b76699674)
+
+## lauch script with a scheduler
+
+1. clone this repository
+2. In folder crawl_with_scedule_mac_windows, create a virtual environment
+3. install required packages in `requirements.txt`
+follow instructions given at [lin](https://medium.com/@thabo_65610/three-ways-to-automate-python-via-jupyter-notebook-d14aaa78de9) for your OS, to schedule the task.

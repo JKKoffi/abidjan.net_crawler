@@ -17,10 +17,7 @@ python crawler path_to_csv path_to_new_csv
 
 * `regex`
 
-## Contact
-koffikouakoujonathan58@gmail.com
 
-*If you lie this , left me a star.*
 
 ## Notebooks
 
@@ -68,3 +65,9 @@ It's possible also to run automatically your scripts under your `OS`, or a cloud
 2. In folder crawl_with_scedule_mac_windows, create a virtual environment
 3. install required packages in `requirements.txt`
 follow instructions given at [link](https://medium.com/@thabo_65610/three-ways-to-automate-python-via-jupyter-notebook-d14aaa78de9) for your OS, to schedule the task.
+
+
+## Contact
+koffikouakoujonathan58@gmail.com
+
+*If you lie this , left me a star.*

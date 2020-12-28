@@ -78,7 +78,7 @@ def search_links_id(start_id):
         i = 0
       else:
         i +=1
-        if i>50: #stop if more than 50 pages are failled
+        if i>2000: #stop if more than 50 pages are failled
           stop=True
       j +=1
       # save_history(pd.DataFrame({'pages':url},index=[0]))
@@ -613,7 +613,7 @@ else:
 # In[ ]:
 
 
-type(stringlist)==list
+# type(stringlist)==list
 
 
 # * Transform list into values
@@ -644,11 +644,8 @@ path_to_save_df = 'annonceDetail_udate.csv'#path_to_save_df = 'write gere the ab
 df_merged_complete.to_csv(path_to_save_df, header=True, encoding='utf-16le', index =False ,mode='a')
 df_merged_complete.to_csv(os.path.join(dir_result,path_to_save_df), header=True, encoding='utf-16le', index =False ,mode='a')
 
-
 # In[ ]:
-
-
 with open('history.txt','w') as f:
-    f.write(str(int(df_links.max()[0].split('/')[-1].split('.')[0]))
+    f.write(str(int(df_links.max()[0].split('/')[-1].split('.')[0])))
     f.close()
 
